@@ -10,7 +10,7 @@
     "recoilForce": 0.25,
     "magazineSize": 6,
     "reloadTimeMs": 1500,
-    "soundPath": "src/assets/357_fire.wav"
+    "soundPath": "sounds/357_fire.wav"
   },
   {
     "id": "rifle",
@@ -23,6 +23,6 @@
     "recoilForce": 0.05,
     "magazineSize": 30,
     "reloadTimeMs": 2500,
-    "soundPath": "src/assets/alyx_gun.wav"
+    "soundPath": "sounds/alyx_gun.wav"
   }
 ]
