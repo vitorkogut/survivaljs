@@ -1,0 +1,37 @@
+[
+  {
+    "id": "stone",
+    "name": "Pedra",
+    "color": "0x666666",
+    "density": 2.5,
+    "soundPath": "src/assets/stone_impact.wav"
+  },
+  {
+    "id": "dirt",
+    "name": "Terra",
+    "color": "0x8B6F47",
+    "density": 1.5,
+    "soundPath": "src/assets/stone_impact.wav"
+  },
+  {
+    "id": "wood",
+    "name": "Madeira",
+    "color": "0xA0826D",
+    "density": 0.8,
+    "soundPath": "src/assets/wood_impact.wav"
+  },
+  {
+    "id": "metal",
+    "name": "Metal",
+    "color": "0x999999",
+    "density": 7.8,
+    "soundPath": "src/assets/metal_impact.wav"
+  },
+  {
+    "id": "grass",
+    "name": "Grama",
+    "color": "0x2D5016",
+    "density": 1.2,
+    "soundPath": "src/assets/stone_impact.wav"
+  }
+]

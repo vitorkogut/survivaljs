@@ -1,0 +1,58 @@
+[
+  {
+    "id": "9mm",
+    "name": "9mm Parabellum",
+    "startingAmount": 60,
+    "projectile": {
+      "width": 3,
+      "height": 3,
+      "color": "0xffd54f",
+      "speed": 60,
+      "lifetimeSeconds": 10,
+      "gravityScale": 0.2,
+      "damageMultiplier": 1
+    }
+  },
+  {
+    "id": "5.56x45",
+    "name": "5.56x45mm NATO",
+    "startingAmount": 90,
+    "projectile": {
+      "width": 3,
+      "height": 3,
+      "color": "0xffe082",
+      "speed": 76,
+      "lifetimeSeconds": 10,
+      "gravityScale": 0.1,
+      "damageMultiplier": 1
+    }
+  },
+  {
+    "id": "12gauge",
+    "name": "12 Gauge",
+    "startingAmount": 24,
+    "projectile": {
+      "width": 4,
+      "height": 4,
+      "color": "0xff8a65",
+      "speed": 50,
+      "lifetimeSeconds": 6,
+      "gravityScale": 0.3,
+      "damageMultiplier": 1
+    }
+  },
+  {
+    "id": "40mm",
+    "name": "40mm Grenade",
+    "startingAmount": 6,
+    "projectile": {
+      "width": 12,
+      "height": 12,
+      "color": "0x66bb6a",
+      "speed": 9,
+      "lifetimeSeconds": 10,
+      "gravityScale": 1.0,
+      "damageMultiplier": 1
+    }
+  }
+]
