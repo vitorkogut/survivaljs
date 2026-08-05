@@ -1,5 +1,7 @@
 import type { ProjectileStats } from "../entities/projectiles/Projectile.js";
 
+const BASE = import.meta.env.BASE_URL;
+
 export interface AmmoTypeData {
     readonly id: string;
     readonly name: string;
@@ -78,10 +80,10 @@ function parseColor(hex: string): number {
 
 export async function loadGameData(): Promise<GameData> {
     const [rawAmmo, rawGuns, rawMaterials] = await Promise.all([
-        fetch("/data/ammo.json").then((r) => r.json() as Promise<RawAmmoEntry[]>),
-        fetch("/data/guns.json").then((r) => r.json() as Promise<RawGunEntry[]>),
-        fetch("/data/materials.json").then((r) => r.json() as Promise<RawMaterialEntry[]>),
-    ]);
+    fetch(`${BASE}data/ammo.json`).then((r) => r.json() as Promise<RawAmmoEntry[]>),
+    fetch(`${BASE}data/guns.json`).then((r) => r.json() as Promise<RawGunEntry[]>),
+    fetch(`${BASE}data/materials.json`).then((r) => r.json() as Promise<RawMaterialEntry[]>),
+]);
 
     const ammoTypes = new Map<string, AmmoTypeData>();
     for (const entry of rawAmmo) {
