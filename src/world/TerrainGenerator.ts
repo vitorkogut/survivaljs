@@ -3,7 +3,7 @@ import Prop from "../entities/Prop.js";
 import type { GameData, MaterialData } from "../data/DataLoader.js";
 
 function seededRandom(seed: number): number {
-    const x = Math.sin(seed) * 10000;
+    const x = Math.sin(seed) * 1000000;
     return x - Math.floor(x);
 }
 
@@ -134,7 +134,7 @@ export default class TerrainGenerator {
         const baseLevel = 400;
         return (
             baseLevel +
-            Math.sin(worldX * 0.002 + 1.3) * 100 +
+            Math.sin(worldX * 0.002 + 1.3) * 210 +
             Math.sin(worldX * 0.006 + 2.7) * 50 +
             Math.sin(worldX * 0.015 + 0.5) * 20
         );

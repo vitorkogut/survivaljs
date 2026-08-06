@@ -81,7 +81,7 @@ export default class HUD {
 
         if (!ammoType) return;
 
-        this.weaponName.textContent = gun.name;
+        this.weaponName.textContent = gun.name + " (Q)";
 
         const magazine = gun.currentMagazine;
         const reserve = player.inventory.getAmmo(gun.ammoTypeId);

@@ -6,7 +6,7 @@ import type World from "../world/World.js";
 import type Player from "./Player.js";
 import type { GameData } from "../data/DataLoader.js";
 
-const AGGRO_RANGE = 300;
+const AGGRO_RANGE = 1000;
 
 export default class Enemy extends Body {
     readonly bodyParts: BodyPart[] = [];
@@ -16,6 +16,7 @@ export default class Enemy extends Body {
     private readonly world: World;
     private readonly hpBar: Graphics;
     private readonly hpBarBg: Graphics;
+    last_shot: number = performance.now();
 
     constructor(
         x: number,
@@ -68,10 +69,13 @@ export default class Enemy extends Body {
             if (this.gun.isEmpty) {
                 this.gun.currentMagazine = this.gun.magazineSize;
             }
-            const projectile = this.gun.fire(this.gripX, this.gripY);
-            if (projectile) {
-                projectile.owner = this;
-                this.world.add(projectile);
+            if(this.last_shot + 1200 < performance.now()){
+                const projectile = this.gun.fire(this.gripX, this.gripY);
+                if (projectile) {
+                    projectile.owner = this;
+                    this.world.add(projectile);
+                }
+                this.last_shot = performance.now();
             }
         }
 
