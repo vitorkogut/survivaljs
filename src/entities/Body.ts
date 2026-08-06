@@ -14,6 +14,8 @@ export default class Body extends Entity {
 
     gravity = true;
     grounded = false;
+    touchingWallLeft = false;
+    touchingWallRight = false;
 
     gravityScale = 1;
 
@@ -52,6 +54,8 @@ export default class Body extends Entity {
     }
 
     integrateX(dt: number): void {
+        this.touchingWallLeft = false;
+        this.touchingWallRight = false;
         this.x += this.vx * dt;
     }
 

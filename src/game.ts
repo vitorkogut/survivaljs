@@ -17,18 +17,20 @@ export default class Game {
     private readonly terrainGenerator: TerrainGenerator;
     private readonly camera: Camera;
     private readonly app: Application;
+    private inventoryOpen = false;
 
     private constructor(app: Application, gameData: GameData) {
         this.app = app;
         this.gameData = gameData;
         this.input = new InputManager(app.canvas);
-        this.world = new World(app.stage);
+        this.world = new World(app.stage, gameData);
         this.hud = new HUD();
         this.terrainGenerator = new TerrainGenerator(gameData);
         this.camera = new Camera(
             app.stage,
             app.screen.width,
-            app.screen.height
+            app.screen.height,
+            app.canvas
         );
 
         this.world.player = this.world.add(
@@ -58,8 +60,17 @@ export default class Game {
             this.camera.x,
             range
         );
+        for (const d of terrain.decor) this.world.addDecor(d);
         for (const block of terrain.blocks) this.world.add(block);
         for (const prop of terrain.props) this.world.add(prop);
+
+        const player = this.world.player;
+        if (player) {
+            for (const spawn of terrain.enemySpawns) {
+                if (Math.random() < 0.5) continue;
+                this.world.add(new Enemy(spawn.x, spawn.y, player, this.world, this.gameData));
+            }
+        }
     }
 
     update(dt: number): void {
@@ -74,6 +85,10 @@ export default class Game {
             this.input.worldMouseY = this.camera.screenToWorldY(
                 this.input.mouseY
             );
+        }
+
+        if (player && this.input.isPressed("inventory")) {
+            this.inventoryOpen = !this.inventoryOpen;
         }
 
         if (player && this.input.isPressed("spawnEnemy")) {
@@ -102,8 +117,15 @@ export default class Game {
                 this.input.worldMouseY
             );
 
+            this.world.cull(
+                this.camera.viewLeft,
+                this.camera.viewTop,
+                this.camera.viewRight,
+                this.camera.viewBottom
+            );
+
             this.generateTerrain();
-            this.hud.update(player, this.gameData);
+            this.hud.update(player, this.gameData, this.inventoryOpen);
         }
 
         this.input.endFrame();

@@ -6,6 +6,12 @@ export default class Prop extends Body {
     readonly mass: number;
     readonly friction = 0.85;
     readonly angularFriction = 0.88;
+    readonly maxHp: number;
+    hp: number;
+
+    // props começam estáticos; física só ativa após receberem impacto
+    activated = false;
+    override gravity = false;
 
     rotation = 0;
     angularVelocity = 0;
@@ -20,6 +26,8 @@ export default class Prop extends Body {
         super(x, y, width, height, material.color);
         this.material = material;
         this.mass = Math.max((material.density * width * height) / 1000, 5);
+        this.maxHp = this.hpForMaterial(material.id);
+        this.hp = this.maxHp;
 
         this.view.pivot.set(width / 2, height / 2);
     }
@@ -45,12 +53,28 @@ export default class Prop extends Body {
     override get colRight(): number { return this.centerX + this.effectiveHalfW; }
     override get colBottom(): number { return this.centerY + this.effectiveHalfH; }
 
+    private hpForMaterial(id: string): number {
+        switch (id) {
+            case "wood":  return 25;
+            case "metal": return 50;
+            default:      return Infinity; // terreno é indestrutível
+        }
+    }
+
+    takeDamage(amount: number): void {
+        if (this.maxHp === Infinity) return;
+        this.hp = Math.max(0, this.hp - amount);
+        if (this.hp <= 0) this.dead = true;
+    }
+
     applyImpact(
         projectileVx: number,
         projectileVy: number,
         hitX: number,
         hitY: number
     ): void {
+        this.activated = true;
+        this.gravity = true;
         const force = 0.5;
 
         this.vx += (projectileVx * force) / this.mass;
@@ -66,6 +90,7 @@ export default class Prop extends Body {
     }
 
     override update(dt: number): void {
+        if (!this.activated) return;
         super.update(dt);
 
         this.vx *= this.friction;

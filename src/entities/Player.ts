@@ -10,6 +10,7 @@ import type { GameData } from "../data/DataLoader.js";
 const MOVE_SPEED = 4;
 const CROUCH_SPEED = 2;
 const JUMP_FORCE = 12;
+const CLIMB_SPEED = 4;
 
 export default class Player extends Body {
     readonly guns: Gun[] = [];
@@ -97,13 +98,11 @@ export default class Player extends Body {
             part.view.position.set(part.x, part.y);
         }
 
-        for (const gunData of gameData.guns) {
-            const ammo = gameData.ammoTypes.get(gunData.ammoType);
-            if (!ammo) continue;
-            this.guns.push(new Gun(gunData, ammo.projectile));
-        }
-
-        this.current_gun = this.equip(this.guns[this.current_gun_index]!);
+        const startIndex = Math.floor(Math.random() * gameData.guns.length);
+        const startGunData = gameData.guns[startIndex]!;
+        const startAmmo = gameData.ammoTypes.get(startGunData.ammoType)!;
+        this.guns.push(new Gun(startGunData, startAmmo.projectile));
+        this.current_gun = this.equip(this.guns[0]!);
 
         this.hpBarBg = new Graphics().rect(0, 0, width, 6).fill(0x333333);
         this.hpBar = new Graphics().rect(0, 0, width, 6).fill(0x4caf50);
@@ -111,6 +110,15 @@ export default class Player extends Body {
         this.hpBar.position.set(0, height + 10);
         this.view.addChild(this.hpBarBg);
         this.view.addChild(this.hpBar);
+    }
+
+    addGun(gun: Gun): void {
+        if (this.guns.some(g => g.name === gun.name)) {
+            this.inventory.addAmmo(gun.ammoTypeId, gun.magazineSize * 2);
+            gun.view.destroy();
+            return;
+        }
+        this.guns.push(gun);
     }
 
     private equip(gun: Gun): Gun {
@@ -146,6 +154,13 @@ export default class Player extends Body {
         if (this.grounded && this.input.isPressed("jump") && !this.crouching) {
             this.vy = -JUMP_FORCE;
             this.grounded = false;
+        }
+
+        // Escalar: empurra contra parede no ar segurando espaço → sobe
+        const climbingLeft  = this.touchingWallLeft  && this.input.isHeld("moveLeft");
+        const climbingRight = this.touchingWallRight && this.input.isHeld("moveRight");
+        if (!this.grounded && (climbingLeft || climbingRight) && this.input.isHeld("jump")) {
+            this.vy = -CLIMB_SPEED;
         }
 
         if (this.input.isPressed("switchGun")) {
@@ -227,8 +242,7 @@ export default class Player extends Body {
     }
 
     private shoot(): void {
-        const projectile = this.current_gun.fire(this.gripX, this.gripY);
-        if (projectile) {
+        for (const projectile of this.current_gun.fire(this.gripX, this.gripY)) {
             projectile.owner = this;
             this.world.add(projectile);
         }

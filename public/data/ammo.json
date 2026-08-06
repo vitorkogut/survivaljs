@@ -32,13 +32,13 @@
     "name": "12 Gauge",
     "startingAmount": 24,
     "projectile": {
-      "width": 4,
-      "height": 4,
+      "width": 3,
+      "height": 3,
       "color": "0xff8a65",
       "speed": 50,
-      "lifetimeSeconds": 6,
-      "gravityScale": 0.3,
-      "damageMultiplier": 1
+      "lifetimeSeconds": 2.5,
+      "gravityScale": 0.35,
+      "damageMultiplier": 0.6
     }
   },
   {
@@ -53,6 +53,34 @@
       "lifetimeSeconds": 10,
       "gravityScale": 1.0,
       "damageMultiplier": 1
+    }
+  },
+  {
+    "id": ".357",
+    "name": ".357 Magnum",
+    "startingAmount": 18,
+    "projectile": {
+      "width": 4,
+      "height": 4,
+      "color": "0xffca28",
+      "speed": 80,
+      "lifetimeSeconds": 8,
+      "gravityScale": 0.08,
+      "damageMultiplier": 2.5
+    }
+  },
+  {
+    "id": "bolt",
+    "name": "Crossbow Bolt",
+    "startingAmount": 4,
+    "projectile": {
+      "width": 6,
+      "height": 3,
+      "color": "0x90a4ae",
+      "speed": 65,
+      "lifetimeSeconds": 8,
+      "gravityScale": 0.04,
+      "damageMultiplier": 5.0
     }
   }
 ]

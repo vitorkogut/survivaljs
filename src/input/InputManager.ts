@@ -1,4 +1,4 @@
-export type GameAction = "moveLeft" | "moveRight" | "jump" | "crouch" | "shoot" | "switchGun" | "reload" | "spawnEnemy";
+export type GameAction = "moveLeft" | "moveRight" | "jump" | "crouch" | "shoot" | "switchGun" | "reload" | "spawnEnemy" | "inventory";
 
 const KEY_BINDINGS: Readonly<Record<string, GameAction>> = {
     ArrowLeft: "moveLeft",
@@ -10,6 +10,7 @@ const KEY_BINDINGS: Readonly<Record<string, GameAction>> = {
     KeyW: "jump",
     KeyQ: "switchGun",
     KeyR: "reload",
+    KeyE: "inventory",
     ControlLeft: "crouch",
     ControlRight: "crouch",
     KeyH: "spawnEnemy",

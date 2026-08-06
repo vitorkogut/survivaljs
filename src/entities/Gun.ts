@@ -13,20 +13,22 @@ export default class Gun extends Entity {
     readonly magazineSize: number;
     readonly reloadTimeMs: number;
 
-    private readonly barrelLength: number;
-    private readonly projectileStats: ProjectileStats;
-
     angle = 0;
-    firerate = 0;
-    recoil_force = 0;
-    last_shot_time = 0;
-    should_render = true;
-    time_to_recenter_ms = 500;
-    angle_modifier = 0.0;
-    sound_path = "";
-
     currentMagazine: number;
     reloading = false;
+
+    private readonly barrelLength: number;
+    private readonly projectileStats: ProjectileStats;
+    private readonly firerate: number;
+    private readonly recoilForce: number;
+    private readonly recentreMs: number;
+    private readonly soundPath: string;
+    private readonly reloadSoundPath: string;
+    private readonly pelletCount: number;
+    private readonly spreadRad: number;
+
+    private angleModifier = 0;
+    private lastShotTime = 0;
     private reloadStartTime = 0;
 
     constructor(data: GunData, projectileStats: ProjectileStats) {
@@ -35,19 +37,25 @@ export default class Gun extends Entity {
         this.barrelLength = data.width;
         this.ammoTypeId = data.ammoType;
         this.firerate = data.firerate;
-        this.recoil_force = data.recoilForce;
+        this.recoilForce = data.recoilForce;
         this.magazineSize = data.magazineSize;
         this.reloadTimeMs = data.reloadTimeMs;
         this.currentMagazine = data.magazineSize;
         this.projectileStats = projectileStats;
-        this.sound_path = data.soundPath;
+        this.soundPath = data.soundPath;
+        this.reloadSoundPath = data.reloadSoundPath;
+        this.pelletCount = data.pelletCount;
+        this.spreadRad = (data.spreadDeg * Math.PI) / 180;
+        this.recentreMs = 500;
 
         this.view = new Graphics()
             .rect(0, -data.height / 2, data.width, data.height)
             .fill(data.color);
 
-        Assets.load(this.sound_path);
-        sound.add(this.sound_path, this.sound_path);
+        Assets.load(this.soundPath);
+        sound.add(this.soundPath, this.soundPath);
+        Assets.load(this.reloadSoundPath);
+        sound.add(this.reloadSoundPath, this.reloadSoundPath);
     }
 
     attachTo(host: Body, offsetX: number, offsetY: number): void {
@@ -59,21 +67,14 @@ export default class Gun extends Entity {
         this.angle = Math.atan2(dy, dx);
     }
 
-    hide(): void {
-        this.view.visible = false;
-        this.should_render = false;
-    }
-
-    show(): void {
-        this.view.visible = true;
-        this.should_render = true;
-    }
+    hide(): void { this.view.visible = false; }
+    show(): void { this.view.visible = true; }
 
     get canFire(): boolean {
         return (
             !this.reloading &&
             this.currentMagazine > 0 &&
-            this.last_shot_time + 1000 / this.firerate < performance.now()
+            this.lastShotTime + 1000 / this.firerate < performance.now()
         );
     }
 
@@ -81,40 +82,40 @@ export default class Gun extends Entity {
         return this.currentMagazine <= 0;
     }
 
-    fire(gripX: number, gripY: number): Projectile | null {
-        if (!this.canFire) return null;
+    fire(gripX: number, gripY: number, volume = 0.5): Projectile[] {
+        if (!this.canFire) return [];
 
+        const now = performance.now();
         const muzzleX = gripX + Math.cos(this.angle) * this.barrelLength;
         const muzzleY = gripY + Math.sin(this.angle) * this.barrelLength;
+        const baseAngle = this.angle + this.angleModifier;
 
-        const projectile = new Projectile(
-            muzzleX,
-            muzzleY,
-            this.angle + this.angle_modifier,
-            this.projectileStats
-        );
+        const projectiles: Projectile[] = [];
+        for (let i = 0; i < this.pelletCount; i++) {
+            const spread = this.pelletCount > 1
+                ? (i / (this.pelletCount - 1) - 0.5) * this.spreadRad + (Math.random() - 0.5) * this.spreadRad * 0.4
+                : 0;
+            projectiles.push(new Projectile(muzzleX, muzzleY, baseAngle + spread, this.projectileStats));
+        }
 
         this.currentMagazine--;
 
-        if (this.last_shot_time + this.time_to_recenter_ms < performance.now()) {
-            this.angle_modifier = 0.0;
+        if (now - this.lastShotTime > this.recentreMs) {
+            this.angleModifier = 0;
         } else {
-            if (Math.cos(this.angle) > 0) {
-                this.angle_modifier -= this.recoil_force;
-            } else {
-                this.angle_modifier += this.recoil_force;
-            }
+            this.angleModifier += Math.cos(this.angle) > 0 ? -this.recoilForce : this.recoilForce;
         }
 
-        this.last_shot_time = performance.now();
-        sound.play(this.sound_path);
-        return projectile;
+        this.lastShotTime = now;
+        sound.play(this.soundPath, { volume });
+        return projectiles;
     }
 
     startReload(): boolean {
         if (this.reloading || this.currentMagazine === this.magazineSize) return false;
         this.reloading = true;
         this.reloadStartTime = performance.now();
+        sound.play(this.reloadSoundPath, { volume: 0.6 });
         return true;
     }
 
@@ -122,21 +123,20 @@ export default class Gun extends Entity {
         if (!this.reloading) return 0;
         if (performance.now() < this.reloadStartTime + this.reloadTimeMs) return 0;
 
-        const needed = this.magazineSize - this.currentMagazine;
-        const toLoad = Math.min(needed, ammoAvailable);
+        const toLoad = Math.min(this.magazineSize - this.currentMagazine, ammoAvailable);
         this.currentMagazine += toLoad;
         this.reloading = false;
         return toLoad;
     }
 
     override update(_dt: number): void {
-        if (this.last_shot_time + this.time_to_recenter_ms < performance.now()) {
-            this.angle_modifier = 0.0;
+        if (performance.now() - this.lastShotTime > this.recentreMs) {
+            this.angleModifier = 0;
         }
     }
 
     override draw(): void {
-        this.view.rotation = this.angle + this.angle_modifier;
+        this.view.rotation = this.angle + this.angleModifier;
         this.view.scale.y = Math.abs(this.angle) > Math.PI / 2 ? -1 : 1;
     }
 }

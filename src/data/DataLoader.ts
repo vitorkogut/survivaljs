@@ -21,6 +21,10 @@ export interface GunData {
     readonly magazineSize: number;
     readonly reloadTimeMs: number;
     readonly soundPath: string;
+    readonly reloadSoundPath: string;
+    readonly enemyUsable: boolean;
+    readonly pelletCount: number;
+    readonly spreadDeg: number;
 }
 
 export interface MaterialData {
@@ -58,6 +62,10 @@ interface RawGunEntry {
     magazineSize: number;
     reloadTimeMs: number;
     soundPath: string;
+    reloadSoundPath: string;
+    enemyUsable?: boolean;
+    pelletCount?: number;
+    spreadDeg?: number;
 }
 
 interface RawMaterialEntry {
@@ -68,10 +76,43 @@ interface RawMaterialEntry {
     soundPath: string;
 }
 
+export interface StructureElementData {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly material: string;
+}
+
+export interface StructureEnemyData {
+    readonly x: number;
+    readonly y: number;
+}
+
+export interface StructureDecorData {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly color: string;
+    readonly alpha: number;
+}
+
+export interface StructureData {
+    readonly id: string;
+    readonly name: string;
+    readonly width: number;
+    readonly blocks: readonly StructureElementData[];
+    readonly props: readonly StructureElementData[];
+    readonly enemies: readonly StructureEnemyData[];
+    readonly decor: readonly StructureDecorData[];
+}
+
 export interface GameData {
     readonly ammoTypes: ReadonlyMap<string, AmmoTypeData>;
     readonly guns: readonly GunData[];
     readonly materials: ReadonlyMap<string, MaterialData>;
+    readonly structures: readonly StructureData[];
 }
 
 function parseColor(hex: string): number {
@@ -79,11 +120,12 @@ function parseColor(hex: string): number {
 }
 
 export async function loadGameData(): Promise<GameData> {
-    const [rawAmmo, rawGuns, rawMaterials] = await Promise.all([
-    fetch(`${BASE}data/ammo.json`).then((r) => r.json() as Promise<RawAmmoEntry[]>),
-    fetch(`${BASE}data/guns.json`).then((r) => r.json() as Promise<RawGunEntry[]>),
-    fetch(`${BASE}data/materials.json`).then((r) => r.json() as Promise<RawMaterialEntry[]>),
-]);
+    const [rawAmmo, rawGuns, rawMaterials, structures] = await Promise.all([
+        fetch(`${BASE}data/ammo.json`).then((r) => r.json() as Promise<RawAmmoEntry[]>),
+        fetch(`${BASE}data/guns.json`).then((r) => r.json() as Promise<RawGunEntry[]>),
+        fetch(`${BASE}data/materials.json`).then((r) => r.json() as Promise<RawMaterialEntry[]>),
+        fetch(`${BASE}data/structures.json`).then((r) => r.json() as Promise<StructureData[]>),
+    ]);
 
     const ammoTypes = new Map<string, AmmoTypeData>();
     for (const entry of rawAmmo) {
@@ -115,6 +157,10 @@ export async function loadGameData(): Promise<GameData> {
         magazineSize: entry.magazineSize,
         reloadTimeMs: entry.reloadTimeMs,
         soundPath: entry.soundPath,
+        reloadSoundPath: entry.reloadSoundPath,
+        enemyUsable: entry.enemyUsable ?? false,
+        pelletCount: entry.pelletCount ?? 1,
+        spreadDeg: entry.spreadDeg ?? 0,
     }));
 
     const materials = new Map<string, MaterialData>();
@@ -128,5 +174,5 @@ export async function loadGameData(): Promise<GameData> {
         });
     }
 
-    return { ammoTypes, guns, materials };
+    return { ammoTypes, guns, materials, structures };
 }

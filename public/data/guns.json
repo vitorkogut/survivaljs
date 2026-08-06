@@ -1,28 +1,9 @@
 [
-  {
-    "id": "pistol",
-    "name": "Pistol",
-    "width": 15,
-    "height": 8,
-    "color": "0xf5f5f5",
-    "ammoType": "9mm",
-    "firerate": 3,
-    "recoilForce": 0.25,
-    "magazineSize": 6,
-    "reloadTimeMs": 1500,
-    "soundPath": "sounds/357_fire.wav"
-  },
-  {
-    "id": "rifle",
-    "name": "Rifle",
-    "width": 46,
-    "height": 8,
-    "color": "0xf5f5f5",
-    "ammoType": "5.56x45",
-    "firerate": 16,
-    "recoilForce": 0.05,
-    "magazineSize": 30,
-    "reloadTimeMs": 2500,
-    "soundPath": "sounds/alyx_gun.wav"
-  }
+  { "id": "pistol",   "name": "Pistol",       "width": 15, "height": 8,  "color": "0xe0e0e0", "ammoType": "9mm",     "firerate": 3,   "recoilForce": 0.25, "magazineSize": 6,  "reloadTimeMs": 1500, "soundPath": "sounds/pistol_fire2.wav",    "reloadSoundPath": "sounds/pistol_reload1.wav",   "enemyUsable": true  },
+  { "id": "smg",      "name": "SMG",           "width": 25, "height": 8,  "color": "0xbdbdbd", "ammoType": "9mm",     "firerate": 15,  "recoilForce": 0.08, "magazineSize": 30, "reloadTimeMs": 2000, "soundPath": "sounds/smg1_fire1.wav",      "reloadSoundPath": "sounds/smg1_reload.wav",      "enemyUsable": true  },
+  { "id": "rifle",    "name": "Rifle",         "width": 40, "height": 8,  "color": "0xf5f5f5", "ammoType": "5.56x45", "firerate": 8,   "recoilForce": 0.18, "magazineSize": 20, "reloadTimeMs": 2500, "soundPath": "sounds/alyx_gun.wav",        "reloadSoundPath": "sounds/ar2_reload.wav",       "enemyUsable": true  },
+  { "id": "ar2",      "name": "AR2",           "width": 38, "height": 9,  "color": "0x607d8b", "ammoType": "5.56x45", "firerate": 18,  "recoilForce": 0.07, "magazineSize": 30, "reloadTimeMs": 2200, "soundPath": "sounds/ar2_fire.wav",        "reloadSoundPath": "sounds/npc_ar2_reload.wav",   "enemyUsable": true  },
+  { "id": "shotgun",  "name": "Shotgun",       "width": 50, "height": 9,  "color": "0x8d6e63", "ammoType": "12gauge", "firerate": 1.2, "recoilForce": 0.9,  "magazineSize": 6,  "reloadTimeMs": 3200, "soundPath": "sounds/shotgun_fire6.wav",   "reloadSoundPath": "sounds/shotgun_reload1.wav",  "enemyUsable": true,  "pelletCount": 5, "spreadDeg": 8 },
+  { "id": "magnum",   "name": "Magnum .357",   "width": 22, "height": 8,  "color": "0xffd700", "ammoType": ".357",    "firerate": 1.5, "recoilForce": 1.0,  "magazineSize": 6,  "reloadTimeMs": 3500, "soundPath": "sounds/357_fire2.wav",       "reloadSoundPath": "sounds/357_reload1.wav",      "enemyUsable": false },
+  { "id": "crossbow", "name": "Crossbow",      "width": 45, "height": 12, "color": "0x5d4037", "ammoType": "bolt",    "firerate": 0.5, "recoilForce": 0.3,  "magazineSize": 1,  "reloadTimeMs": 3000, "soundPath": "sounds/crossbow_fire1.wav",  "reloadSoundPath": "sounds/crossbow_bolt_load1.wav", "enemyUsable": false }
 ]

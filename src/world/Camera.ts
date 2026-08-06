@@ -3,17 +3,28 @@ import type { Container } from "pixi.js";
 export default class Camera {
     x = 0;
     y = 0;
+    zoom = 1;
 
-    // quanto da distância player→mouse a câmera avança (0 = player, 1 = mouse)
-    private readonly lookAheadFactor = 0.3;
-    // suavização do movimento (mais baixo = mais suave)
+    private readonly lookAheadFactor = 0.5;
     private readonly smoothing = 0.1;
+    private readonly maxPlayerOffsetFactor = 0.42;
+    private readonly minZoom = 0.25;
+    private readonly maxZoom = 3;
 
     constructor(
         private readonly stage: Container,
         private screenWidth: number,
-        private screenHeight: number
-    ) {}
+        private screenHeight: number,
+        canvas?: HTMLCanvasElement
+    ) {
+        canvas?.addEventListener("wheel", this.onWheel, { passive: false });
+    }
+
+    private readonly onWheel = (event: WheelEvent): void => {
+        event.preventDefault();
+        const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1;
+        this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoom * factor));
+    };
 
     resize(width: number, height: number): void {
         this.screenWidth = width;
@@ -27,46 +38,47 @@ export default class Camera {
         worldMouseX: number,
         worldMouseY: number
     ): void {
-        // alvo fica entre o player e o mouse
-        const targetX =
+        const rawTargetX =
             playerCenterX +
             (worldMouseX - playerCenterX) * this.lookAheadFactor;
-        const targetY =
+        const rawTargetY =
             playerCenterY +
             (worldMouseY - playerCenterY) * this.lookAheadFactor;
 
-        // lerp independente de framerate
+        const maxOffsetX = (this.screenWidth / this.zoom) * this.maxPlayerOffsetFactor;
+        const maxOffsetY = (this.screenHeight / this.zoom) * this.maxPlayerOffsetFactor;
+        const targetX = Math.max(playerCenterX - maxOffsetX, Math.min(playerCenterX + maxOffsetX, rawTargetX));
+        const targetY = Math.max(playerCenterY - maxOffsetY, Math.min(playerCenterY + maxOffsetY, rawTargetY));
+
         const factor = 1 - Math.pow(1 - this.smoothing, dt);
         this.x += (targetX - this.x) * factor;
         this.y += (targetY - this.y) * factor;
 
-        // aplicar offset no stage: o "mundo" se move no sentido oposto à câmera
-        this.stage.x = Math.round(this.screenWidth / 2 - this.x);
-        this.stage.y = Math.round(this.screenHeight / 2 - this.y);
+        this.applyTransform();
     }
 
-    // converte coordenada de tela → coordenada de mundo
+    private applyTransform(): void {
+        this.stage.scale.set(this.zoom);
+        this.stage.x = Math.round(this.screenWidth / 2 - this.x * this.zoom);
+        this.stage.y = Math.round(this.screenHeight / 2 - this.y * this.zoom);
+    }
+
     screenToWorldX(screenX: number): number {
-        return screenX - this.stage.x;
+        return (screenX - this.stage.x) / this.zoom;
     }
 
     screenToWorldY(screenY: number): number {
-        return screenY - this.stage.y;
+        return (screenY - this.stage.y) / this.zoom;
     }
 
-    // snap imediato sem suavização (usado na inicialização)
     snapTo(worldX: number, worldY: number): void {
         this.x = worldX;
         this.y = worldY;
-        this.stage.x = Math.round(this.screenWidth / 2 - this.x);
-        this.stage.y = Math.round(this.screenHeight / 2 - this.y);
+        this.applyTransform();
     }
 
-    get viewLeft(): number {
-        return this.x - this.screenWidth / 2;
-    }
-
-    get viewRight(): number {
-        return this.x + this.screenWidth / 2;
-    }
+    get viewLeft(): number { return this.x - this.screenWidth / (2 * this.zoom); }
+    get viewRight(): number { return this.x + this.screenWidth / (2 * this.zoom); }
+    get viewTop(): number { return this.y - this.screenHeight / (2 * this.zoom); }
+    get viewBottom(): number { return this.y + this.screenHeight / (2 * this.zoom); }
 }
