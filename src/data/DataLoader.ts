@@ -124,7 +124,7 @@ export async function loadGameData(): Promise<GameData> {
             name: entry.name,
             color: parseColor(entry.color),
             density: entry.density,
-            soundPath: entry.soundPath,
+            soundPath: BASE + entry.soundPath,
         });
     }
 
